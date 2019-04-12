@@ -1,0 +1,237 @@
+IF OBJECT_ID (N'[Ref_Roles]', N'U') IS NOT NULL 
+   DROP TABLE [Ref_Roles]
+
+CREATE TABLE [Ref_Roles]
+(
+[RoleId]		INT				NOT NULL IDENTITY(1,1),
+[Code]			VARCHAR(5)		NOT NULL,
+[Description]	VARCHAR(100)	NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE()
+CONSTRAINT PK_RefRoleId PRIMARY KEY ([RoleId]),
+CONSTRAINT UC_RefRoleCode UNIQUE ([Code])
+)
+
+INSERT [Ref_Roles] ([Code], [Description]) VALUES ('DEV', 'Developer')
+INSERT [Ref_Roles] ([Code], [Description]) VALUES ('ADM', 'Admin')
+INSERT [Ref_Roles] ([Code], [Description]) VALUES ('STU', 'Student')
+
+SELECT * FROM [Ref_Roles]  
+
+----- END -----
+
+IF OBJECT_ID (N'[tbl_Users]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_Users]
+
+CREATE TABLE [tbl_Users]
+(
+[UserId]				INT					NOT NULL IDENTITY(1,1),
+[PersonalKey]			VARCHAR(800)		NOT NULL,
+[FirstName]				VARCHAR(800)		NOT NULL,
+[LastName]				VARCHAR(800)		NOT NULL,
+[RoleId]				INT					NOT NULL,
+[Password]				VARCHAR(800)		NOT NULL,
+[SaltKey]				VARCHAR(800)		NOT NULL,
+[EmailId]				VARCHAR(800)		NOT NULL,
+[Mobile]				VARCHAR(800)		NOT NULL,
+[Photo]					VARCHAR(MAX)		NULL,
+[ImgType]				VARCHAR(800)		NULL,
+[Gender]				VARCHAR(300)		NULL,
+[IsFirstTimeLogin]		BIT					DEFAULT 1,
+[FailedLoginAttempts]	INT					DEFAULT 0,
+[DisableAccountTime]	DATETIME			NULL,
+[IsActive]				BIT					DEFAULT 1,
+[CreatedDate]			DATETIME			DEFAULT GETDATE()
+CONSTRAINT PK_tblUserId PRIMARY KEY ([UserId]),
+CONSTRAINT UC_UserEmail UNIQUE ([EmailId]),
+CONSTRAINT UC_UserMobile UNIQUE ([Mobile])
+)
+
+INSERT [tbl_Users]
+([PersonalKey],[FirstName],[LastName],[RoleId],[Password],[SaltKey],[EmailId],[EmailCheck],[Mobile],[MobileCheck],[IsFirstTimeLogin],[IsActive],[CreatedBy],[CreatedDate]) 
+VALUES 
+(
+'2W6ppjh+6bi2veYXNrz3LyQVLFaj+r7/9CBL2horM8MhYF/kvm5kmSZ0t//tAStkHf0IWR8cPYE8kvPO7Qmc7w==',
+'AhU+KNMJioCmoJw2oT+65g2UG+mIbJUYX2v0/BCMP6c=', 
+'bF3touMtIMA9H+OOVGFlNctvgi6FTNaZmF6GVQU8aw8=', 
+1,
+'c4wEQjOGk90sA2gDiQwGPGyAT0b+R376Op6ZLtyIBgs=', 
+'uLbP8np1Si1KVsDuTNemr4Iba9jkkFyU+ShxsBdL41Q=', 
+'wHJuzGDS7F+tj6L1bEgk9ndvWaf9T9Ub7DOTvUUWfll/4fEFoDpYyV1hzLBhM61o', 
+'Xk4Zw+C8PndeMJkBKVSVw5/gINK/7S+nubH4M5gQmeg=', 
+'h1TIGpbN6h6XheJsxVtJyw72ufPQnyxjHGc3WbgA3os=',
+'wWAOX1vUTy3SOlULE+99Bw==',
+1,1,1,GETDATE()
+)
+---- Actual Values
+--FirstName - Sampath
+--LastName - Bandari
+--Email - sampath.bandari51@gmail.com
+--Mobile - 8121839354
+--Password - Euro@123
+
+SELECT * FROM [tbl_Users]
+
+----- END -----
+
+
+
+
+
+
+IF OBJECT_ID (N'[tbl_BatchType]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_BatchType]
+
+CREATE TABLE [tbl_BatchType]
+(
+[BatchTypeId]	INT 			NOT NULL IDENTITY(1,1),
+[Code]			VARCHAR(5)		NOT NULL,
+[Description]	INT				NOT NULL,	
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_BatchTypeId PRIMARY KEY ([BatchTypeId]),
+CONSTRAINT UC_BTypeCode UNIQUE ([Code]),
+CONSTRAINT UC_BTypeDesc UNIQUE ([Description])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_Batches]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_Batches]
+
+CREATE TABLE [tbl_Batches]
+(
+[BatchId]		INT 			NOT NULL IDENTITY(1,1),
+[BatchName]		VARCHAR(30)		NOT NULL,
+[CourseId]		INT				NOT NULL,
+[StaffName]		VARCHAR(50)		NOT NULL,
+[StartDate]		DATETIME		NOT NULL,
+[BatchTime]		DATETIME		NOT NULL,
+[BatchTypeId]	INT				NOT NULL,	
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_BatchId PRIMARY KEY ([BatchId]),
+CONSTRAINT FK_BatchCourseId FOREIGN KEY ([CourseId]) REFERENCES [tbl_Course]([CourseId]),
+CONSTRAINT FK_BBatchTypeId FOREIGN KEY ([BatchTypeId]) REFERENCES [tbl_BatchType]([BatchTypeId]),
+CONSTRAINT UC_ContentChapter UNIQUE ([BatchName])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_BatchStudents]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_BatchStudents]
+
+CREATE TABLE [tbl_BatchStudents]
+(
+[BatchStudentId]	INT 		NOT NULL IDENTITY(1,1),
+[BatchId]			INT			NOT NULL,
+[StudentId]			INT			NOT NULL,
+[CreatedDate]		DATETIME	DEFAULT GETDATE(),
+CONSTRAINT PK_ContentId PRIMARY KEY ([BatchStudentId]),
+CONSTRAINT FK_BSBatchId FOREIGN KEY ([BatchId]) REFERENCES [tbl_Batches]([BatchId]),
+CONSTRAINT FK_BSStudetId FOREIGN KEY ([StudentId]) REFERENCES [tbl_Users]([UserId]),
+CONSTRAINT UC_BSBatchId UNIQUE ([BatchId])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_VideoRecording]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_VideoRecording]
+
+CREATE TABLE [tbl_VideoRecording]
+(
+[VideoRecId]	INT 			NOT NULL IDENTITY(1,1),
+[BatchId]		INT				NOT NULL,
+[VideoPath]		VARCHAR(MAX)	NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_VideoRecId PRIMARY KEY ([VideoRecId]),
+CONSTRAINT FK_BSBatchId FOREIGN KEY ([BatchId]) REFERENCES [tbl_Batches]([BatchId])
+)
+
+-------- END --------
+
+
+
+
+IF OBJECT_ID (N'[tbl_CourseCategory]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_CourseCategory]
+
+CREATE TABLE [tbl_CourseCategory]
+(
+[CategoryId]	INT 			NOT NULL IDENTITY(1,1),
+[Code]			INT				NOT NULL,
+[Description]	VARCHAR(25)		NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_CategoryId PRIMARY KEY ([CategoryId]),
+CONSTRAINT UC_CCategoryCode UNIQUE ([Code]),
+CONSTRAINT UC_CCategoryDesc UNIQUE ([Description])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_Course]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_Course]
+
+CREATE TABLE [tbl_Course]
+(
+[CourseId]		INT 			NOT NULL IDENTITY(1,1),
+[CategoryId]	INT				NOT NULL,
+[Title]			VARCHAR(50)		NOT NULL,
+[Description]	VARCHAR(MAX)	NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_CourseId PRIMARY KEY ([CourseId]),
+CONSTRAINT FK_CourseCCategory FOREIGN KEY ([CategoryId]) REFERENCES [tbl_CourseCategory]([CategoryId]),
+CONSTRAINT UC_CourseTitle UNIQUE ([Title])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_CourseContent]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_CourseContent]
+
+CREATE TABLE [tbl_CourseContent]
+(
+[ContentId]		INT 			NOT NULL IDENTITY(1,1),
+[CourseId]		INT				NOT NULL,
+[ChapterName]	VARCHAR(50)		NOT NULL,
+[Concepts]		VARCHAR(80)		NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_ContentId PRIMARY KEY ([ContentId]),
+CONSTRAINT FK_ContentCourseId FOREIGN KEY ([CourseId]) REFERENCES [tbl_Course]([CourseId]),
+CONSTRAINT UC_ContentChapter UNIQUE ([ChapterName])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_CourseDetails]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_CourseDetails]
+
+CREATE TABLE [tbl_CourseDetails]
+(
+[CDetailsId]	INT 			NOT NULL IDENTITY(1,1),
+[CourseId]		INT				NOT NULL,
+[Currency]		CHAR(2)			NOT NULL,
+[Price]			Decimal(18,0)	NOT NULL,
+[Ratting]		INT				NOT NULL,
+[Duration]		INT				NOT NULL,
+[NumOfClasses]	INT				NOT NULL,
+[Image]			VARCHAR(MAX)	Not NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_CDetailsId PRIMARY KEY ([CDetailsId]),
+CONSTRAINT FK_CDetailsCourseId FOREIGN KEY ([CourseId]) REFERENCES [tbl_Course]([CourseId])
+)
+
+-------- END --------
+
+IF OBJECT_ID (N'[tbl_CourseMaterial]', N'U') IS NOT NULL 
+   DROP TABLE [tbl_CourseMaterial]
+
+CREATE TABLE [tbl_CourseMaterial]
+(
+[MaterialId]	INT 			NOT NULL IDENTITY(1,1),
+[CourseId]		INT				NOT NULL,
+[Path]			VARCHAR(MAX)	NOT NULL,
+[CreatedDate]	DATETIME		DEFAULT GETDATE(),
+CONSTRAINT PK_MaterialId PRIMARY KEY ([MaterialId]),
+CONSTRAINT FK_CMaterialCourseId FOREIGN KEY ([CourseId]) REFERENCES [tbl_Course]([CourseId])
+)
+
+-------- END --------
+
